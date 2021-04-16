@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TPatrolMapper">
+    <resultMap id="patrol" type="com.qqkj.inspection.inspection.entity.Patrol">
+        <id property="id" column="pid"/>
+        <result property="session" column="session"/>
+        <result property="year" column="year"></result>
+        <result property="round" column="round"></result>
+        <result property="patrolTime" column="patrol_time"></result>
+        <result property="endTime" column="end_time"></result>
+        <result property="groupName" column="group_name"></result>
+        <collection property="units" resultMap="unit"></collection>
+        <collection property="reportPatrolUnits" resultMap="PatrolUnit"></collection>
+    </resultMap>
+
+    <resultMap id="PatrolUnit" type="com.qqkj.inspection.inspection.entity.ReportPatrolUnit">
+        <id property="id" column="puid"></id>
+        <result property="unitId" column="unit_id"></result>
+        <result property="patrolId" column="patrol_id"></result>
+    </resultMap>
+
+    <resultMap id="unit" type="com.qqkj.inspection.inspection.entity.TUnit" >
+        <id property="id" column="uid"></id>
+        <result property="name" column="name"/>
+        <result property="shorter" column="shorter"/>
+        <result property="mobile" column="mobile"/>
+        <result property="user" column="user"/>
+        <result property="email" column="email"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+    <select id="queryPatrol" resultMap="patrol">
+        SELECT p.id pid,p.`session`,pu.id patrolunitid,p.year,p.round,p.patrol_time,p.end_time,p.group_name,
+        pu.id puid,pu.unit_id,pu.patrol_id,
+        u.id uid,u.`name`,u.shorter,u.mobile,u.user,u.email,u.sort
+        FROM t_patrol p,t_unit u,t_patrol_unit pu
+        WHERE p.id=pu.patrol_id and u.id=pu.unit_id
+        <if test="ew.nonEmptyOfWhere == true">
+            and ${ew.sqlSegment}
+        </if>
+        ORDER BY p.`session`DESC,p.`year`DESC ,p.round ASC,p.group_name ASC
+    </select>
+
+
+    <select id="getList" resultType="com.qqkj.inspection.inspection.entity.PatrolSpecial">
+        SELECT p.id,p.`session`,pu.id patrolunitid,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_special s on s.patrol_id=pu.id
+        where s.id is not NULL
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName.length()>0">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="department!=null and department!=''">
+            and s.uder_department=#{department}
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+
+
+
+    <select id="getLixing" resultType="com.qqkj.inspection.inspection.entity.TPatrolLixing">
+        SELECT p.id,pu.id patrolunitid,p.`session`,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_lixing s on s.patrol_id=pu.id
+        where s.id is not NULL
+        <if test="lixingType!=null">
+            and s.lixing_type=#{lixingType}
+        </if>
+
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName!=''">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName!='' and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+    <select id="getClue" resultType="com.qqkj.inspection.inspection.entity.PatrolClue">
+        SELECT p.id,pu.id patrolunitid,p.`session`,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_clue s on s.patrol_id=pu.id
+        where s.id is not NULL
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName!=''">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName!='' and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="discipline!=null and discipline!=''">
+            and s.discipline=#{discipline}
+        </if>
+        <if test="end!=null">
+            and s.end=#{end}
+        </if>
+        <if test="problem!=null and problem!=''">
+            and s.problem like concat('%',#{problem},'%')
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+
+    <select id="getClue2" resultType="com.qqkj.inspection.inspection.entity.PatrolClue">
+        SELECT p.id,pu.id patrolunitid,p.`session`,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_clue s on s.patrol_id=pu.id
+        where s.id is not NULL
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName!=''">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName!='' and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="discipline!=null and discipline!=''">
+            and s.discipline=#{discipline}
+        </if>
+        <if test="end!=null">
+            and s.end=#{end}
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+
+
+    <select id="getClues" resultType="com.qqkj.inspection.inspection.entity.PatrolClue">
+        SELECT p.id,p.`session`,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        where 1=1
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName!=''">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName!='' and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc,p.round desc,p.group_name,u.`name`
+
+    </select>
+
+
+
+    <resultMap id="patrol1" type="com.qqkj.inspection.inspection.entity.Patrol">
+        <id property="id" column="pid"/>
+        <result property="session" column="session"/>
+        <result property="year" column="year"></result>
+        <result property="round" column="round"></result>
+        <result property="patrolTime" column="patrol_time"></result>
+        <result property="endTime" column="end_time"></result>
+        <result property="groupName" column="group_name"></result>
+        <collection property="units" resultMap="unit"></collection>
+        <collection property="reportPatrolUnits" resultMap="reportPatrolUnit"></collection>
+    </resultMap>
+
+    <resultMap id="reportPatrolUnit" type="com.qqkj.inspection.inspection.entity.ReportPatrolUnit">
+        <id property="id" column="puid"></id>
+        <result property="unitId" column="unit_id"></result>
+        <result property="patrolId" column="patrol_id"></result>
+        <association property="report" resultMap="report"></association>
+    </resultMap>
+
+
+    <resultMap id="report" type="com.qqkj.inspection.inspection.entity.Report">
+        <id property="id" column="rid"></id>
+        <result property="patrolTime" column="rtime"></result>
+        <result property="patrolId" column="rpatrol_id"></result>
+    </resultMap>
+
+    <select id="getAll" resultMap="patrol1">
+        SELECT p.id pid,p.`session`,pu.id patrolunitid,p.year,p.round,p.patrol_time,p.end_time,p.group_name,
+        pu.id puid,pu.unit_id,pu.patrol_id,
+        u.id uid,u.`name`,u.shorter,u.mobile,u.user,u.email,u.sort,
+        r.id rid,r.patrol_time rtime,r.patrol_id rpatrol_id
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_report r on r.patrol_id=pu.id
+        where r.id is not null
+            <if test="year!=null">
+                and p.year=#{year}
+            </if>
+            <if test="session!=null">
+                and p.session=#{session}
+            </if>
+            <if test="round!=null">
+                and p.round=#{round}
+            </if>
+            <if test="groupName!=null ">
+                and p.group_name like concat('%',#{groupName},'%')
+            </if>
+            <if test="unitName!=null and unitName.length()>0">
+                and u.`name` like concat('%',#{unitName},'%')
+            </if>
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+    <select id="getAll2" resultMap="patrol1">
+        SELECT p.id pid,p.`session`,pu.id patrolunitid,p.year,p.round,p.patrol_time,p.end_time,p.group_name,
+        pu.id puid,pu.unit_id,pu.patrol_id,
+        u.id uid,u.`name`,u.shorter,u.mobile,u.user,u.email,u.sort,
+        r.id rid,r.patrol_time rtime,r.patrol_id rpatrol_id
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_report r on r.patrol_id=pu.id
+        where r.id is not null
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null ">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+    <select id="getList2" resultType="com.qqkj.inspection.inspection.entity.PatrolSpecial">
+        SELECT p.id,p.`session`,pu.id patrolunitid,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_special s on s.patrol_id=pu.id
+        where s.id is not NULL
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName.length()>0">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="department!=null and department!=''">
+            and s.uder_department=#{department}
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+    <select id="getLixing2" resultType="com.qqkj.inspection.inspection.entity.TPatrolLixing">
+        SELECT p.id,pu.id patrolunitid,p.`session`,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,u.`name` unitName from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_lixing s on s.patrol_id=pu.id
+        where s.id is not NULL
+        <if test="lixingType!=null">
+            and s.lixing_type=#{lixingType}
+        </if>
+
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName!=''">
+            and p.group_name like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName!='' and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        GROUP BY pu.id
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name,u.`name`
+    </select>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TUserMapper">
+
+    <insert id="addRole">
+        insert into c_user_role (role_id,user_id)values(#{roid},#{userid})
+    </insert>
+
+    <select id="getRole" resultType="java.lang.String">
+            select r.role_name from t_user  t
+            left join c_user_role c on t.id=c.user_id
+            left join t_role r on c.role_id= r.role_id
+            where t.username=#{username}
+    </select>
+    
+    <resultMap id="userRole" type="com.qqkj.inspection.inspection.entity.UserRoles">
+        <id property="id" column="id"/>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="datatime" column="datatime"></result>
+        <result property="state" column="state"></result>
+        <result property="phone" column="phone"></result>
+        <result property="name" column="name1"></result>
+        <collection property="roles" resultMap="role"></collection>
+    </resultMap>
+
+    <select id="getRoleId" resultMap="userRole">
+        select u.id ,u.username,u.`password`,u.datatime,u.state,u.phone,u.name name1,
+        r.role_id rrid,r.role_name rname
+        from t_user u
+        LEFT JOIN c_user_role ur on ur.user_id=u.id
+        LEFT JOIN t_role r on r.role_id=ur.role_id
+        where
+        <if test="username!=null and username!=''">
+            u.username=#{username}
+        </if>
+        <if test="id!=null">
+            u.id=#{id}
+        </if>
+    </select>
+
+    <update id="setRole">
+     update c_user_role set role_id=#{roid} where user_id=#{userid}
+    </update>
+
+
+
+    <resultMap id="userDepartment" type="com.qqkj.inspection.inspection.entity.UserDepartment">
+        <id property="id" column="id"/>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="datatime" column="datatime"></result>
+        <result property="state" column="state"></result>
+        <result property="phone" column="phone"></result>
+        <result property="name" column="name1"></result>
+        <association property="department" resultMap="department"></association>
+        <collection property="roles" resultMap="role"></collection>
+    </resultMap>
+
+    <resultMap id="department" type="com.qqkj.inspection.inspection.entity.TDepartment">
+        <id property="id" column="did"></id>
+        <result property="name" column="dname"></result>
+    </resultMap>
+
+
+    <resultMap id="role" type="com.qqkj.inspection.inspection.entity.TRole">
+        <id property="roleId" column="rrid"></id>
+        <result property="roleName" column="rname"></result>
+    </resultMap>
+    <select id="queryUserDepartment"  resultMap="userDepartment">
+        select u.id ,u.username,u.`password`,u.datatime,u.state,u.phone,u.name name1,
+        d.id did,d.`name` dname,
+        r.role_id rrid,r.role_name rname
+        from t_user u
+        LEFT JOIN t_department_user du on  du.user_id =u.id
+        LEFT JOIN t_department d on d.id=du.department_id
+        LEFT JOIN c_user_role ur on ur.user_id=u.id
+        left JOIN	t_role r on r.role_id=ur.role_id
+        <where>
+            <if test="id!=null and id!=''">
+                and u.id=#{id}
+            </if>
+            <if test="name !=null and name!=''">
+                and u.name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

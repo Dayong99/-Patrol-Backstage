@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TLabelMapper">
+    <resultMap id="label1" type="com.qqkj.inspection.inspection.entity.Label">
+        <id property="id" column="id1"></id>
+        <result property="result" column="result1"></result>
+        <result property="ordernum" column="ordernum1"/>
+        <result property="level" column="level1"></result>
+        <result property="parentid" column="parentid1"></result>
+        <result property="labletype" column="labletype1"></result>
+        <collection property="lists" resultMap="label2"/>
+
+    </resultMap>
+    <resultMap id="label2" type="com.qqkj.inspection.inspection.entity.Label">
+        <id property="id" column="id2"></id>
+        <result property="result" column="result2"></result>
+        <result property="ordernum" column="ordernum2"/>
+        <result property="level" column="level2"></result>
+        <result property="parentid" column="parentid2"></result>
+        <result property="labletype" column="labletype2"></result>
+    </resultMap>
+
+
+    <select id="query" resultMap="label1">
+        select l1.`result` result1,l1.id id1 ,l1.ordernum ordernum1,l1.level level1,l1.parentid parentid1,l1.labletype labletype1,
+            l2.`result` result2,l2.id id2,l2.ordernum ordernum2,l2.level level2,l2.parentid parentid2,l2.labletype labletype2
+            from t_label l1
+            LEFT JOIN t_label l2 on l1.id=l2.parentid
+        <if test="ew.emptyOfWhere == false">
+            where l1.labletype=#{labletype}
+            and l1.parentid IS NULL
+            and (${ew.sqlSegment})
+        </if>
+        <if test="ew.emptyOfWhere == true">
+            where l1.labletype=#{labletype}
+            and l1.parentid IS NULL
+        </if>
+            ORDER BY ordernum1 asc , ordernum2 asc
+    </select>
+
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TPatrolUnitMapper">
+
+   <!-- <resultMap id="patrol" type="com.qqkj.inspection.inspection.entity.Patrol">
+        <id property="id" column="pid"/>
+        <result property="session" column="session"/>
+        <result property="year" column="year"></result>
+        <result property="round" column="round"></result>
+        <result property="patrolTime" column="patrol_time"></result>
+        <result property="endTime" column="end_time"></result>
+        <result property="groupName" column="group_name"></result>
+        <collection property="patrolUnits" resultMap="patrolUnit"></collection>
+    </resultMap>
+
+    <resultMap id="patrolUnit" type="com.qqkj.inspection.inspection.entity.ReportPatrolUnit">
+        <id property="id" column="puid"></id>
+    </resultMap>
+
+    <resultMap id="unit" type="com.qqkj.inspection.inspection.entity.TUnit">
+        <id property="id" column="uid"></id>
+        <result property="name" column="unitName"/>
+        <result property="shorter" column="shorter"/>
+        <result property="mobile" column="mobile"/>
+        <result property="user" column="user"/>
+        <result property="email" column="email"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+    <select id="getList" resultType="com.qqkj.inspection.inspection.entity.ReportPatrolUnit">
+        SELECT p.id,p.`session`,pu.id patrolunitid,p.year,p.round,pu.unit_id,p.patrol_time,p.end_time,p.group_name,
+        pu.id puid,
+        u.id uid,u.name unitName,u.shorter,u.mobile,u.user,u.email,u.sort,
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        <where>
+            <if test="year!=null and year.length()>0">
+                and p.year=#{year}
+            </if>
+            <if test="session!=null and session.length()>0">
+                and p.session=#{session}
+            </if>
+            <if test="round!=null and round.length()>0">
+                and p.round=#{round}
+            </if>
+            <if test="groupName!=null and groupName.length()>0">
+                and p.group_name like concat('%',#{groupName},'%')
+            </if>
+            <if test="unitName!=null and unitName.length()>0">
+                and u.`name` like concat('%',#{unitName},'%')
+            </if>
+        </where>
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name
+    </select>-->
+</mapper>

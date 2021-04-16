@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TProposalMapper">
+
+    <!--<resultMap id="proposalPatrol" type="com.qqkj.inspection.inspection.entity.PatrolProposal">
+        <id property="id" column="pid"/>
+        <result property="session" column="session"/>
+        <result property="year" column="year"></result>
+        <result property="round" column="round"></result>
+        <result property="patrolTime" column="patrol_time"></result>
+        <result property="endTime" column="end_time"></result>
+        <result property="groupName" column="group_name"></result>
+        <result property="patrolunitid" column="patrolunitid"></result>
+        <result property="unitName" column="unitName"></result>
+        <association property="proposal" javaType="com.qqkj.inspection.inspection.entity.TProposal">
+            <id property="id" column="prid"></id>
+            <result property="transferingUnit" column="transfering_unit"></result>
+            <result property="transferingTime" column="transfering_time"></result>
+            <result property="transferingNum" column="transfering_num"></result>
+            <result property="end" column="end"></result>
+            <result property="message" column="message"></result>
+            <result property="information" column="information"></result>
+        </association>
+    </resultMap>-->
+
+    <select id="getProposal" resultType="com.qqkj.inspection.inspection.entity.PatrolProposal">
+        SELECT p.id,p.`session`,p.year,p.round,p.patrol_time,p.end_time,p.group_name,
+        pu.id patrolunitid,
+        u.`name` unitName
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_proposal pr on pr.patrol_id=pu.id
+        where pr.id is not NULL
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null">
+            and p.group_name =#{groupName}
+        </if>
+        <if test="unitName!=null and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="message!=null and message.length()>0">
+            and pr.message like concat('%',#{message},'%')
+        </if>
+        <if test="information!=null and information.length()>0">
+            and pr.information like concat('%',#{information},'%')
+        </if>
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name
+    </select>
+    <select id="getProposal2" resultType="com.qqkj.inspection.inspection.entity.PatrolProposal">
+        SELECT p.id,p.`session`,p.year,p.round,p.patrol_time,p.end_time,p.group_name,
+        pu.id patrolunitid,
+        u.`name` unitName
+        from t_patrol p
+        LEFT JOIN t_patrol_unit pu on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_proposal pr on pr.patrol_id=pu.id
+        where pr.id is not NULL
+        <if test="year!=null">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null">
+            and p.group_name =#{groupName}
+        </if>
+        <if test="unitName!=null and unitName.length()>0">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="message!=null and message.length()>0">
+            and pr.message like concat('%',#{message},'%')
+        </if>
+        <if test="information!=null and information.length()>0">
+            and pr.information like concat('%',#{information},'%')
+        </if>
+        ORDER BY session desc,p.year desc ,p.round desc,p.group_name
+    </select>
+
+</mapper>

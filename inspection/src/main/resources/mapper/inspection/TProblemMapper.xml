@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TProblemMapper">
+    <resultMap id="problemPatrol" type="com.qqkj.inspection.inspection.entity.ProblemPatrol">
+        <id property="id" column="prid"/>
+        <result property="stress" column="stress"/>
+        <result property="message" column="message"/>
+        <result property="creatTime" column="creat_time"/>
+        <result property="firstCategory" column="first_category"/>
+        <result property="twoCategory" column="two_category"/>
+        <result property="otherCategory" column="other_category"/>
+        <result property="patrolId" column="pid"/>
+        <result property="session" column="session"/>
+        <result property="year" column="year"></result>
+        <result property="round" column="round"></result>
+        <result property="groupName" column="group_name"></result>
+        <result property="unitId" column="uid"></result>
+        <result property="name" column="name"/>
+        <result property="sort" column="sort"/>
+        <result property="patrolUnitId" column="patrolUnitId"/>
+        <result property="label1" column="label1"/>
+        <result property="label2" column="label2"/>
+        <result property="labelOther" column="labelOther"/>
+    </resultMap>
+
+    <select id="query" resultMap="problemPatrol">
+        SELECT p.id pid,p.`session`,p.`year`,p.round,p.group_name,
+        u.id uid,u.name,u.sort,
+        pu.id patrolUnitId,
+        pr.id prid,pr.stress,pr.message,pr.creat_time,pr.first_category,pr.two_category,pr.other_category,
+        l1.result label1,
+        l2.result label2,
+        l3.result labelOther
+        FROM t_patrol p
+        LEFT JOIN t_patrol_unit pu on  p.id=pu.patrol_id
+        LEFT JOIN t_unit u on  u.id=pu.unit_id
+        LEFT JOIN t_problem pr on pr.patrol_id=pu.id
+        LEFT JOIN t_label l1 on l1.id=pr.first_category
+        LEFT JOIN t_label l2 on l2.id=pr.two_category
+        LEFT JOIN t_label l3 on l3.id=pr.other_category
+        WHERE  pr.id is not null
+        <if test="ew.nonEmptyOfWhere == true">
+            and ${ew.sqlSegment}
+        </if>
+            ORDER BY p.`session`DESC,p.`year`DESC ,p.round ASC,p.group_name ASC,u.name,pr.creat_time
+    </select>
+
+    <select id="listAll" resultMap="problemPatrol">
+        SELECT p.id pid,p.`session`,p.`year`,p.round,p.group_name,
+        u.id uid,u.name,u.sort,
+        pu.id,
+        pr.id prid,pr.stress,pr.message,pr.creat_time,pr.first_category,pr.two_category,pr.other_category,
+        l1.result label1,
+        l2.result label2,
+        l3.result labelOther
+        FROM t_patrol p
+        LEFT JOIN t_patrol_unit pu on  p.id=pu.patrol_id
+        LEFT JOIN t_unit u on  u.id=pu.unit_id
+        LEFT JOIN t_problem pr on pr.patrol_id=pu.id
+        LEFT JOIN t_label l1 on l1.id=pr.first_category
+        LEFT JOIN t_label l2 on l2.id=pr.two_category
+        LEFT JOIN t_label l3 on l3.id=pr.other_category
+        WHERE pr.id is not null and  sort=#{sort}
+        ORDER BY p.`session`DESC,p.`year`DESC ,p.round ASC,p.group_name ASC
+    </select>
+
+    <select id="getNums" resultType="java.util.HashMap">
+        SELECT
+        <if test="firstId==null">
+            COUNT(first_category) as nums
+        </if>
+        <if test="firstId!=null">
+            COUNT(two_category) as nums
+        </if>
+        <if test="session!=null">
+            ,p.round
+        </if>
+        <if test="session==null">
+            ,p.session
+        </if>
+        from
+        t_problem pr
+        LEFT JOIN t_patrol_unit pu on pu.id=pr.patrol_id
+        LEFT JOIN t_patrol p on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_label l on pr.first_category=l.id
+        <if test="firstId!=null ">
+            LEFT JOIN t_label l2 on pr.two_category=l2.id
+        </if>
+        where first_category is not null and u.sort=#{sort}
+        <if test="session!=null ">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null ">
+            and p.round=#{round}
+        </if>
+        <if test="firstId!=null">
+            and first_category=#{firstId}
+        </if>
+    </select>
+
+    <select id="getMap" resultType="java.util.HashMap">
+        SELECT
+        <if test="firstId==null">
+            pr.first_category as category,COUNT(first_category) as nums,l.result as result
+        </if>
+        <if test="firstId!=null">
+            pr.two_category as category,COUNT(two_category) as nums ,l2.result as result
+        </if>
+
+        <if test="session!=null ">
+            ,p.round
+        </if>
+        <if test="session==null">
+            ,p.session
+        </if>
+        from
+        t_problem pr
+        LEFT JOIN t_patrol_unit pu on pu.id=pr.patrol_id
+        LEFT JOIN t_patrol p on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_label l on pr.first_category=l.id
+        <if test="firstId!=null ">
+            LEFT JOIN t_label l2 on pr.two_category=l2.id
+        </if>
+        where first_category is not null and u.sort=#{sort}
+        <if test="year!=null ">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null ">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null ">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null ">
+            and p.group #{groupName}
+        </if>
+        <if test="unitName!=null and unitName!=''">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="firstId!=null ">
+            and pr.first_category=#{firstId}
+        </if>
+        GROUP BY
+        <if test="session==null">
+            p.session,
+        </if>
+        <if test="session!=null">
+            p.round,
+        </if>
+        first_category
+        <if test="firstId!=null">
+            ,pr.two_category
+        </if>
+        ORDER BY session desc,p.round desc,l.ordernum
+    </select>
+    <select id="query2" resultType="com.qqkj.inspection.inspection.entity.ProblemPatrol">
+        SELECT p.id pid,p.`session`,p.`year`,p.round,p.group_name,
+        u.id uid,u.name,u.sort,
+        pu.id patrolUnitId,
+        pr.id prid,pr.stress,pr.message,pr.creat_time,pr.first_category,pr.two_category,pr.other_category,
+        l1.result label1,
+        l2.result label2,
+        l3.result labelOther
+        FROM t_patrol p
+        LEFT JOIN t_patrol_unit pu on  p.id=pu.patrol_id
+        LEFT JOIN t_unit u on  u.id=pu.unit_id
+        LEFT JOIN t_problem pr on pr.patrol_id=pu.id
+        LEFT JOIN t_label l1 on l1.id=pr.first_category
+        LEFT JOIN t_label l2 on l2.id=pr.two_category
+        LEFT JOIN t_label l3 on l3.id=pr.other_category
+        WHERE  pr.id is not null
+        <if test="ew.nonEmptyOfWhere == true">
+            and ${ew.sqlSegment}
+        </if>
+        ORDER BY p.`session`DESC,p.`year`DESC ,p.round ASC,p.group_name ASC,u.name,pr.creat_time
+    </select>
+</mapper>

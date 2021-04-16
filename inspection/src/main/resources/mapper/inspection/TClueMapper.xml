@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TClueMapper">
+
+    <select id="getList" resultType="com.qqkj.inspection.inspection.entity.TClue">
+        SELECT c.*,t.result firstcategoryStr,t2.result twoCategoryStr from t_clue c
+
+        LEFT JOIN t_label t on c.first_category=t.id
+        LEFT JOIN t_label t2 on c.two_category =t2.id
+        WHERE c.patrol_id=#{patrolid}
+        <if test="discipline!=null and discipline!=''">
+        and c.discipline=#{discipline}
+        </if>
+
+        <if test="end !=null">
+        and c.end=#{end}
+        </if>
+        <if test="firstcategory !=null">
+        and c.first_category=#{firstcategory}
+        </if>
+        <if test="reactionLevel !=null and reactionLevel!=''">
+        and c.reaction_level=#{reactionLevel}
+        </if>
+        <if test="reactionPost!=null and reactionPost!=''">
+        and c.reaction_post=#{reactionPost}
+        </if>
+        <if test="situation !=null and situation!=''">
+         and c.situation=#{situation}
+        </if>
+        <if test="transferingUnit!=null">
+          and c.transfering_unit=#{transferingUnit}
+        </if>
+        <if test="twoCategor!=null">
+            and c.two_category=#{twoCategor}
+        </if>
+    </select>
+
+
+    <select id="getnums" resultType="java.util.HashMap">
+    SELECT
+    <if test="firstid==null">
+     COUNT(first_category) as nums,
+    </if>
+    <if test="firstid!=null and firstid!=''">
+    COUNT(two_category) as nums,
+    </if>
+
+    <if test="session!=null and session!=''">
+        p.round
+    </if>
+    <if test="session==null">
+        p.session
+    </if>
+    from
+    t_clue c
+    LEFT JOIN t_patrol_unit pu on pu.id=c.patrol_id
+    LEFT JOIN t_patrol p on p.id=pu.patrol_id
+    LEFT JOIN t_unit u on pu.unit_id=u.id
+    LEFT JOIN t_label l on c.first_category=l.id
+    <if test="firstid!=null and firstid!=''">
+        LEFT JOIN t_label l2 on c.two_category=l2.id
+    </if>
+    where first_category is not null
+    <if test="session!=null and session!=''">
+        and p.session=#{session}
+    </if>
+    <if test="round!=null and round!=''">
+        and p.round=#{round}
+    </if>
+    <if test="firstid!=null">
+        and c.first_category=#{firstid}
+    </if>
+    </select>
+
+
+
+    <select id="getMap" resultType="java.util.HashMap">
+        SELECT
+        <if test="firstid==null">
+            c.first_category as category,COUNT(first_category) as nums,l.result as result
+        </if>
+        <if test="firstid!=null and firstid!=''">
+            c.two_category as category,COUNT(two_category) as nums ,l2.result as result
+        </if>
+
+        <if test="session!=null and session!=''">
+            ,p.round
+        </if>
+        <if test="session==null">
+            ,p.session
+        </if>
+         from
+        t_clue c
+        LEFT JOIN t_patrol_unit pu on pu.id=c.patrol_id
+        LEFT JOIN t_patrol p on p.id=pu.patrol_id
+        LEFT JOIN t_unit u on pu.unit_id=u.id
+        LEFT JOIN t_label l on c.first_category=l.id
+        <if test="firstid!=null and firstid!=''">
+            LEFT JOIN t_label l2 on c.two_category=l2.id
+        </if>
+        where first_category is not null
+        <if test="year!=null and year !=''">
+            and p.year=#{year}
+        </if>
+        <if test="session!=null and session!=''">
+            and p.session=#{session}
+        </if>
+        <if test="round!=null and round!=''">
+            and p.round=#{round}
+        </if>
+        <if test="groupName!=null and groupName!=''">
+            and p.group like concat('%',#{groupName},'%')
+        </if>
+        <if test="unitName!=null and unitName!=''">
+            and u.`name` like concat('%',#{unitName},'%')
+        </if>
+        <if test="disciplineid!=null and disciplineid!=''">
+            and c.discipline=#{disciplineid}
+        </if>
+        <if test="firstid!=null and firstid!=''">
+           and c.first_category=#{firstid}
+        </if>
+        GROUP BY
+        <if test="session==null">
+            p.session,
+        </if>
+        <if test="session!=null and session!=''">
+         p.round,
+        </if>
+        first_category
+        <if test="firstid!=null and firstid!=''">
+            ,c.two_category
+        </if>
+        ORDER BY session desc,p.round desc,l.ordernum
+    </select>
+</mapper>

@@ -1,0 +1,11 @@
+server:
+  port: 8020
+  tomcat:
+    max-connections: 10000000
+  connection-timeout: 10000000
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+

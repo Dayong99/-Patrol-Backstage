@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qqkj.inspection.inspection.mapper.TReportMapper">
+
+   <!-- <resultMap id="patrol" type="com.qqkj.inspection.inspection.entity.Patrol">
+        <id property="id" column="pid"/>
+        <result property="session" column="session"/>
+        <result property="year" column="year"></result>
+        <result property="round" column="round"></result>
+        <result property="patrolTime" column="ptime"></result>
+        <result property="endTime" column="end_time"></result>
+        <result property="groupName" column="group_name"></result>
+
+    </resultMap>
+
+
+
+    <resultMap id="unit" type="com.qqkj.inspection.inspection.entity.TUnit" >
+        <id property="id" column="uid"></id>
+        <result property="name" column="name"/>
+        <result property="shorter" column="shorter"/>
+        <result property="mobile" column="mobile"/>
+        <result property="user" column="user"/>
+        <result property="email" column="email"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+    <resultMap id="reportPatrol" type="com.qqkj.inspection.inspection.entity.ReportPatrol">
+        <id property="id" column="rid"></id>
+        <result property="patrolTime" column="rtime"></result>
+        <association property="patrol" resultMap="patrol"></association>
+        <association property="patrolUnit" resultMap="patrolUnit"></association>
+    </resultMap>
+
+    <resultMap id="patrolUnit" type="com.qqkj.inspection.inspection.entity.TPatrolUnit" >
+        <id property="id" column="puid"></id>
+    </resultMap>
+
+    <select id="query" resultMap="reportPatrol">
+        SELECT p.id pid,p.`session`,p.`year`,p.round,p.patrol_time ptime, p.end_time,p.group_name,
+        pu.id puid,
+        u.id uid,u.name,u.shorter,u.mobile,u.user,u.email,u.sort,
+        r.id rid,r.patrol_time rtime,r.patrol_id
+        FROM t_unit u,t_patrol p,t_patrol_unit pu,t_report r
+        <if test="ew.emptyOfWhere == false">
+            ${ew.customSqlSegment}
+            and p.id=pu.patrol_id and u.id=pu.unit_id and r.patrol_id=pu.id
+        </if>
+        <if test="ew.emptyOfWhere == true">
+            where p.id=pu.patrol_id and u.id=pu.unit_id and r.patrol_id=p.id
+        </if>
+        ORDER BY p.`session`DESC,p.`year`DESC ,p.round ASC,p.group_name ASC
+    </select>-->
+
+</mapper>
